@@ -1,15 +1,7 @@
-const express = require('express');
-const { createProxyMiddleware } = require('http-proxy-middleware');
-const app = express();
-
-app.use('/clob', createProxyMiddleware({
-  target: 'https://clob.polymarket.com',
-  changeOrigin: true
-}));
-
-app.use('/gamma', createProxyMiddleware({
-  target: 'https://gamma-api.polymarket.com',
-  changeOrigin: true
-}));
-
-app.listen(process.env.PORT || 3000);
+{
+  "name": "polymarket-relay",
+  "version": "1.0.0",
+  "scripts": { "start": "node index.js" },
+  "dependencies": { "express": "^4.21.0" },
+  "engines": { "node": ">=18.0.0" }
+}
