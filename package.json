@@ -1,11 +1,10 @@
 {
-  "name": "poly-relay",
-  "version": "2.0.0",
-  "scripts": {
-    "start": "node index.js"
-  },
+  "name": "poly-opus-forge",
+  "version": "1.0.0",
+  "scripts": {"start": "node index.js"},
   "dependencies": {
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "ethers": "^6.7.1"
   }
 }
