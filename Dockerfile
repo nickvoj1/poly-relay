@@ -1,6 +1,7 @@
-FROM node:18-alpine
+FROM node:20-slim
 WORKDIR /app
-COPY . .
-RUN npm install
-EXPOSE $PORT
-CMD ["npm", "start"]
+COPY package.json .
+RUN npm install --production
+COPY index.js .
+EXPOSE 3000
+CMD ["node", "index.js"]
