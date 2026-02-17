@@ -1,37 +1,27 @@
-const express = require("express");
+import express from 'express';
 const app = express();
-const PORT = process.env.PORT || 3000;
-const RELAY_SECRET = process.env.RELAY_SECRET || "";
+app.use(express.json());
 
-app.use(express.json({ limit: "1mb" }));
-
-app.use((req, res, next) => {
-  if (RELAY_SECRET && req.headers["x-relay-secret"] !== RELAY_SECRET) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  next();
-});
-
-app.get("/health", (_req, res) => {
-  res.json({ status: "ok", ts: Date.now() });
-});
-
-app.post("/order", async (req, res) => {
-  const { order, headers: polyHeaders } = req.body;
-  if (!order || !polyHeaders) return res.status(400).json({ error: "Missing order or headers" });
+app.post('/order', async (req, res) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
   try {
-    const resp = await fetch("https://clob.polymarket.com/order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...polyHeaders },
-      body: JSON.stringify(order),
+    const response = await fetch('https://clob.polymarket.com/order', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(req.body),
+      signal: controller.signal
     });
-    const text = await resp.text();
-    let data;
-    try { data = JSON.parse(text); } catch { data = { raw: text }; }
-    res.status(resp.status).json({ success: resp.ok, status: resp.status, data, orderID: data?.orderID || null });
-  } catch (err) {
-    res.status(502).json({ error: err.message });
+    const data = await response.json();
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({error: e.message});
+  } finally {
+    clearTimeout(timeout);
   }
 });
 
-app.listen(PORT, "0.0.0.0", () => console.log(`Relay on port ${PORT}`));
+app.get('/health', (req, res) => res.json({status: 'live'}));
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`Relay on ${port}`));
